@@ -4,16 +4,34 @@ Created on Fri Dec 22 16:03:11 2023
 
 @author: SérgioPolimante
 """
-import pylab
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib
 import pygame
 from typing import List, Tuple
+import folium
 
 matplotlib.use("Agg")
 
+
+def plot_route(cities, route):
+    m = folium.Map(location=[cities['Latitude'].mean(), cities['Longitude'].mean()], zoom_start=4)
+
+    # Adicionar marcadores para cada cidade
+    for i, city in cities.iterrows():
+        folium.Marker(
+            [city['Latitude'], city['Longitude']],
+            popup=city['Cidade'],
+            icon=folium.Icon(color='red', icon='info-sign')
+        ).add_to(m)
+
+    # Adicionar linhas conectando as cidades na ordem da rota
+    route_coords = [(cities.iloc[i]['Latitude'], cities.iloc[i]['Longitude']) for i in route]
+    route_coords.append(route_coords[0])  # Fechar o ciclo
+    folium.PolyLine(route_coords, color="blue", weight=2.5, opacity=0.8).add_to(m)
+
+    return m
 
 def draw_plot(screen: pygame.Surface, x: list, y: list, x_label: str = 'Generation', y_label: str = 'Fitness') -> None:
     """
